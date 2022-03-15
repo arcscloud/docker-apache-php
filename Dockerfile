@@ -19,7 +19,7 @@ RUN	\
     && dpkg-reconfigure locales \
 	&& apt-get install --no-install-recommends -y $BUILD_DEPS \
 	&& apt-get update \
-    && apt-get install -y curl apache2 libapache2-mod-php php-cli php-readline php-mbstring php-zip php-intl php-xml php-json php-curl php-gd php-pgsql php-mysql php-pear php-ldap vim \
+    && apt-get install -y curl apache2 libapache2-mod-php php-cli php-dev php-readline php-mbstring php-zip php-intl php-xml php-json php-curl php-gd php-pgsql php-mysql php-pear php-ldap vim \
     # Apache settings
     && cp /dev/null ${APACHE_CONF_DIR}/conf-available/other-vhosts-access-log.conf \
     && rm ${APACHE_CONF_DIR}/sites-enabled/000-default.conf ${APACHE_CONF_DIR}/sites-available/000-default.conf \
@@ -34,7 +34,10 @@ RUN	\
 	&& ln -sf /dev/stdout /var/log/apache2/access.log \
 	&& ln -sf /dev/stderr /var/log/apache2/error.log \
 	&& chmod 755 /sbin/entrypoint.sh \
-	&& chown www-data:www-data ${PHP_DATA_DIR} -Rf
+	&& chown www-data:www-data ${PHP_DATA_DIR} -Rf \
+	&& pecl install redis \
+	&& echo "extension=redis.so" >> /etc/php/8.1/apache2/php.ini \
+	&& echo "extension=redis.so" >> /etc/php/8.1/cli/php.ini
 
 COPY configs/apache2.conf ${APACHE_CONF_DIR}/apache2.conf
 COPY configs/app.conf ${APACHE_CONF_DIR}/sites-enabled/app.conf
